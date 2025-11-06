@@ -1,0 +1,33 @@
+name: fetch and splash assets
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'  # weekly auto-run
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: install deps
+        run: npm install sharp tsx
+
+      - name: run converter
+        run: tsx index.ts
+
+      - name: commit & push output
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git add assets/* || true
+          git commit -m "update assets" || echo "no changes"
+          git push
