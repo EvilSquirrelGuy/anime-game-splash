@@ -22,7 +22,7 @@ jobs:
         run: npm install sharp tsx
 
       - name: run converter
-        run: tsx index.ts
+        run: npx tsx index.ts
 
       - name: commit & push output
         run: |
