@@ -3,7 +3,7 @@ name: fetch and splash assets
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 1'  # weekly auto-run
+    - cron: '0 0 * * 4'  # weekly auto-run (after update day)
 
 jobs:
   build:
