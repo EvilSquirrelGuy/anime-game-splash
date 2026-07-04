@@ -96,7 +96,8 @@ async function download_background(asset: BackgroundAsset, options: Options) {
     fs.writeFileSync(file_path, res.data);
 
     const symlink_path = path.join(out_dir, "video.webm");
-    fs.symlinkSync(filename, symlink_path, "file");
+    if (!fs.existsSync(symlink_path))
+      fs.symlinkSync(filename, symlink_path, "file");
   }
 
   if (background.url) {
@@ -110,7 +111,8 @@ async function download_background(asset: BackgroundAsset, options: Options) {
     
     // symlink it
     let symlink_path = path.join(out_dir, "background.webp");
-    fs.symlinkSync(filename, symlink_path, "file");
+    if (!fs.existsSync(symlink_path))
+      fs.symlinkSync(filename, symlink_path, "file");
 
 
     // convert to png
@@ -119,7 +121,8 @@ async function download_background(asset: BackgroundAsset, options: Options) {
 
     // symlink
     symlink_path = path.join(out_dir, "background.png");
-    fs.symlinkSync(filename, symlink_path, "file");
+    if (!fs.existsSync(symlink_path))
+      fs.symlinkSync(filename, symlink_path, "file");
   }
 
 
@@ -134,7 +137,8 @@ async function download_background(asset: BackgroundAsset, options: Options) {
     
     // symlink it
     let symlink_path = path.join(out_dir, "theme.webp");
-    fs.symlinkSync(filename, symlink_path, "file");
+    if (!fs.existsSync(symlink_path))
+      fs.symlinkSync(filename, symlink_path, "file");
 
 
     // convert to png
@@ -143,7 +147,8 @@ async function download_background(asset: BackgroundAsset, options: Options) {
 
     // symlink
     symlink_path = path.join(out_dir, "theme.png");
-    fs.symlinkSync(filename, symlink_path, "file");
+    if (!fs.existsSync(symlink_path))
+      fs.symlinkSync(filename, symlink_path, "file");
   }
 
   console.log("💾 Saving manifest.json...")
