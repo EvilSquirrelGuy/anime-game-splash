@@ -46,5 +46,5 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email github-actions[bot]@users.noreply.github.com
           git add assets/* || true
-          git commit -m "update assets" || echo "no changes"
+          git commit -m "Update assets $(date +\%d/%m/%Y)" || echo "No changes"
           git push
