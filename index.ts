@@ -89,27 +89,61 @@ async function download_background(asset: BackgroundAsset, options: Options) {
 
   if (video.url) {
     const res = await fetch_asset(video.url);
-    if (res === undefined) return;
-    fs.writeFileSync(path.join(out_dir, res.filename || "video.webm"), res.data);
+    if (res === undefined || res.filename === undefined) return;
+
+    const { filename } = res;
+    const file_path = path.join(out_dir, filename);
+    fs.writeFileSync(file_path, res.data);
+
+    const symlink_path = path.join(out_dir, "video.webm");
+    fs.symlinkSync(filename, symlink_path, "file");
   }
 
   if (background.url) {
     const res = await fetch_asset(background.url);
-    if (res === undefined) return;
+    if (res === undefined || res.filename === undefined) return;
+    
     // save webp
-    fs.writeFileSync(path.join(out_dir, res.filename || "background.webp"), res.data);
+    const { filename } = res;
+    let file_path = path.join(out_dir, filename);
+    fs.writeFileSync(file_path, res.data);
+    
+    // symlink it
+    let symlink_path = path.join(out_dir, "background.webp");
+    fs.symlinkSync(filename, symlink_path, "file");
+
+
     // convert to png
-    fs.writeFileSync(path.join(out_dir, res.filename?.replace("webp", "png") || "background.png"), await sharp(res.data).png().toBuffer());
+    file_path = path.join(out_dir, filename.replace("webp", "png"));
+    fs.writeFileSync(file_path, await sharp(res.data).png().toBuffer());
+
+    // symlink
+    symlink_path = path.join(out_dir, "background.png");
+    fs.symlinkSync(filename, symlink_path, "file");
   }
 
 
   if (theme.url) {
     const res = await fetch_asset(theme.url);
-    if (res === undefined) return;
+    if (res === undefined || res.filename === undefined) return;
+    
     // save webp
-    fs.writeFileSync(path.join(out_dir, res.filename || "theme.webp"), res.data);
+    const { filename } = res;
+    let file_path = path.join(out_dir, filename);
+    fs.writeFileSync(file_path, res.data);
+    
+    // symlink it
+    let symlink_path = path.join(out_dir, "theme.webp");
+    fs.symlinkSync(filename, symlink_path, "file");
+
+
     // convert to png
-    fs.writeFileSync(path.join(out_dir, res.filename?.replace("webp", "png") || "theme.png"), await sharp(res.data).png().toBuffer());
+    file_path = path.join(out_dir, filename.replace("webp", "png"));
+    fs.writeFileSync(file_path, await sharp(res.data).png().toBuffer());
+
+    // symlink
+    symlink_path = path.join(out_dir, "theme.png");
+    fs.symlinkSync(filename, symlink_path, "file");
   }
 
   console.log("💾 Saving manifest.json...")
@@ -120,6 +154,22 @@ async function download_background(asset: BackgroundAsset, options: Options) {
     "theme",
     "url"
   ], 2));
+
+  // add symlink
+  if (video.url) {
+    try {
+      console.log("Attempting to remove 'latest' symlink")
+      fs.unlinkSync("assets/latest");
+    } catch {
+      console.log("'latest' symlink does not exist...")
+    }
+    finally {
+      console.log("Updating 'latest' symlink...")
+      const symlink_path = path.join("assets", "latest");
+      const relative_target = path.relative(path.dirname(symlink_path), out_dir);
+      fs.symlinkSync(relative_target, symlink_path, "dir");
+    }
+  }
 
 }
 
