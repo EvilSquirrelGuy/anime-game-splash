@@ -2,6 +2,12 @@ name: Fetch latest assets
 
 on:
   workflow_dispatch:
+    inputs:
+        force:
+          description: 'Force refetch'
+          required: false
+          type: boolean
+          default: false
   schedule:
     - cron: '0 0 * * 4'  # weekly auto-run (after update day)
 
@@ -16,16 +22,24 @@ jobs:
         with:
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: npm install sharp tsx
+        run: bun install
 
+      - name: Set flags
+        id: flags
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force }}" = "true" ]; then
+            echo "flags=-f" >> "$GITHUB_OUTPUT"
+          else
+            echo "flags=" >> "$GITHUB_OUTPUT"
+          fi
+      
       - name: Run fetcher script
-        run: npx tsx index.ts
+        run: |
+          bun index.ts ${{ steps.flags.outputs.flags }}
 
       - name: Update repo with new assets
         run: |
